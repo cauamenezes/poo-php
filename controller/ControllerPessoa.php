@@ -32,16 +32,21 @@ class ControllerPessoa {
             
 
             case 'POST':
+
                 return $this->_modelPessoa->create();
+
                 break;
 
             case 'PUT':
-                # code...
+
+                return $this->_modelPessoa->update();
                 break;
 
             case 'DELETE':
-                # code...
+                
+                return $this->_modelPessoa->delete();
                 break;
+
             default:
                 # code...
                 break;

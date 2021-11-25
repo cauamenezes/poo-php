@@ -24,6 +24,12 @@ class ModelPessoa{
         $this->_celular = $dadosPessoa->celular ?? null;
         $this->_fotografia = $dadosPessoa->fotografia ?? null;
 
+        // $this->_nome = $_POST["nome"] ?? null;
+        // $this->_sobrenome = $_POST["sobrenome"] ?? null;
+        // $this->_email = $_POST["email"] ?? null;
+        // $this->_celular = $_POST["celular"] ?? null;
+        // $this->_fotografia = $_FILES["fotografia"]["name"] ?? null;
+
         $this->_conn = $conn;
     }
 
@@ -60,6 +66,52 @@ class ModelPessoa{
         $sql = "INSERT INTO tbl_pessoa(nome, sobrenome, email, celular, fotografia)
                 VALUES (?, ?, ?, ?, ?)";
 
+        $extensao = pathinfo($this->_fotografia, PATHINFO_EXTENSION);
+        $novoNomeArquivo = md5(microtime()) . ".$extensao";
+
+        move_uploaded_file($_FILES["fotografia"]["tmp_name"], "../upload/$novoNomeArquivo");
+
+        $statement = $this->_conn->prepare($sql);
+
+        
+
+        $statement->bindValue(1, $this->_nome);
+        $statement->bindValue(2, $this->_sobrenome);
+        $statement->bindValue(3, $this->_email);
+        $statement->bindValue(4, $this->_celular);
+        $statement->bindValue(5, $novoNomeArquivo);
+
+        if ($statement->execute()) {
+            return "Success";
+        } else {
+            return "Error";
+        }
+    }
+
+    public function delete(){
+
+        $sql = "DELETE FROM tbl_pessoa WHERE cod_pessoa = ?";
+
+        $statement = $this->_conn->prepare($sql);
+
+        $statement->bindValue(1, $this->_codPessoa);
+
+        if ($statement->execute()) {
+            return "Dados excluídos com sucesso!";
+        }
+
+    }
+
+    public function update(){
+
+        $sql = "UPDATE tbl_pessoa SET 
+        nome = ?,
+        sobrenome = ?,
+        email = ?,
+        celular = ?,
+        fotografia = ?
+        WHERE cod_pessoa = ?";
+
         $statement = $this->_conn->prepare($sql);
 
         $statement->bindValue(1, $this->_nome);
@@ -67,14 +119,12 @@ class ModelPessoa{
         $statement->bindValue(3, $this->_email);
         $statement->bindValue(4, $this->_celular);
         $statement->bindValue(5, $this->_fotografia);
-
-        $statement->execute();
+        $statement->bindValue(6, $this->_codPessoa);
 
         if ($statement->execute()) {
-            return "Success";
-        } else {
-            return "Error";
+            return "Dados alterados com sucesso!";
         }
+
     }
 
 }
